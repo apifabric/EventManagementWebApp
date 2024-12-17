@@ -1,0 +1,55 @@
+{
+    "models": [
+        {
+            "classname": "Event",
+            "code": "class Event(Base):\n    \"\"\"Description: Holds details about events in the management system.\"\"\"\n\n    __tablename__ = 'event'\n\n    id = Column(Integer, primary_key=True, autoincrement=True)\n    name = Column(String(200))\n    start_time = Column(DateTime)\n    end_time = Column(DateTime)\n    duration = Column(Integer)  # duration in minutes, calculated to ensure max time of 45 mins\n\n    # Logic attributes\n    overlap_check = Column(Boolean)\n",
+            "sqlite_create": "CREATE TABLE event (\n    id INTEGER PRIMARY KEY AUTOINCREMENT,\n    name TEXT,\n    start_time DATETIME,\n    end_time DATETIME,\n    duration INTEGER,\n    overlap_check BOOLEAN\n);",
+            "description": "Holds details about events in the management system.",
+            "name": "Event"
+        }
+    ],
+    "rules": [
+        {
+            "name": "Max Duration Rule",
+            "description": "Limit each event to a maximum duration of 45 minutes.",
+            "use_case": "Event Management",
+            "entity": "Event",
+            "code": "Rule.constraint(validate=Event,\n                as_condition=lambda row: row.duration <= 45,\n                error_msg=\"Event duration ({row.duration}) exceeds 45 minutes.\")"
+        },
+        {
+            "name": "No Overlap Rule",
+            "description": "Ensure that events do not overlap each other.",
+            "use_case": "Event Management",
+            "entity": "Event",
+            "code": "Rule.constraint(validate=Event,\n                as_condition=lambda row: not row.overlap_check,\n                error_msg=\"Event overlaps with another event.\")"
+        },
+        {
+            "name": "Business Hours Rule",
+            "description": "Ensure that events are scheduled only between 9 AM and 6 PM.",
+            "use_case": "Event Management",
+            "entity": "Event",
+            "code": "Rule.constraint(validate=Event,\n                as_condition=lambda row: row.start_time.hour >= 9 and row.end_time.hour <= 18,\n                error_msg=\"Event time must be between 9 AM and 6 PM.\")"
+        }
+    ],
+    "test_data": "",
+    "test_data_rows": [
+        {
+            "test_data_row_variable": "event1",
+            "code": "event1 = Event(name=\"Meeting\", start_time=date(2023, 10, 3), end_time=date(2023, 10, 3), duration=30, overlap_check=False)"
+        },
+        {
+            "test_data_row_variable": "event2",
+            "code": "event2 = Event(name=\"Workshop\", start_time=date(2023, 10, 3, 11), end_time=date(2023, 10, 3, 11, 45), duration=45, overlap_check=False)"
+        },
+        {
+            "test_data_row_variable": "event3",
+            "code": "event3 = Event(name=\"Conference\", start_time=date(2023, 10, 3, 14), end_time=date(2023, 10, 3, 15), duration=60, overlap_check=True)"
+        },
+        {
+            "test_data_row_variable": "event4",
+            "code": "event4 = Event(name=\"Seminar\", start_time=date(2023, 10, 3, 16), end_time=date(2023, 10, 3, 17, 30), duration=90, overlap_check=True)"
+        }
+    ],
+    "test_data_sqlite": "INSERT INTO event (name, start_time, end_time, duration, overlap_check) VALUES ('Meeting', '2023-10-03 09:00:00', '2023-10-03 09:30:00', 30, 0);\nINSERT INTO event (name, start_time, end_time, duration, overlap_check) VALUES ('Workshop', '2023-10-03 11:00:00', '2023-10-03 11:45:00', 45, 0);\nINSERT INTO event (name, start_time, end_time, duration, overlap_check) VALUES ('Conference', '2023-10-03 14:00:00', '2023-10-03 15:00:00', 60, 1);\nINSERT INTO event (name, start_time, end_time, duration, overlap_check) VALUES ('Seminar', '2023-10-03 16:00:00', '2023-10-03 17:30:00', 90, 1);",
+    "name": "EventManagementWebApp"
+}

@@ -1,0 +1,5 @@
+Web application for event Management
+Use LogicBank to: Events should be scheduled
+each event can have a maximum time of 45 minutes
+Events should not overlap each other
+Events should be only between 9 am and 6 pm
